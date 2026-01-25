@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SIAJ - Automação Jurídica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+    /* --- VARIÁVEIS DE TEMA (MODERNO DARK) --- */
+    :root {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --bg-input: #0f172a;
+        --primary: #6366f1; /* Indigo */
+        --primary-hover: #4f46e5;
+        --accent: #8b5cf6; /* Violet */
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --radius: 12px;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        --glass: rgba(30, 41, 59, 0.7);
+    }
+
+    /* --- RESET & GERAL --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    
+    body { 
+        font-family: 'Inter', sans-serif; 
+        background-color: var(--bg-body); 
+        color: var(--text-main); 
+        padding: 40px;
+        min-height: 100vh;
+        background-image: radial-gradient(circle at top right, #1e1b4b, transparent 40%),
+                          radial-gradient(circle at bottom left, #1e293b, transparent 40%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Scrollbar Personalizada */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-body); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    .container { 
+        width: 100%;
+        max-width: 900px; 
+        background-color: var(--glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+        border-radius: var(--radius); 
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+        overflow: hidden; 
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- HEADER --- */
+    .header { 
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); 
+        padding: 25px 40px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Efeito de brilho no header */
+    .header::after {
+        content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .version-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-top: 4px; display: inline-block; }
+
+    #settings-btn { 
+        background: rgba(255,255,255,0.1); 
+        border: 1px solid rgba(255,255,255,0.2); 
+        color: white; 
+        width: 40px; height: 40px; 
+        border-radius: 50%; 
+        cursor: pointer; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; align-items: center; justify-content: center;
+    }
+    #settings-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+    .content-body { padding: 40px; }
+
+    /* --- DASHBOARD STATUS --- */
+    #dashboard-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    
+    .status-card { 
+        background: rgba(15, 23, 42, 0.6); 
+        padding: 20px; 
+        border-radius: var(--radius); 
+        border: 1px solid var(--border); 
+        display: flex; 
+        flex-direction: column; 
+        transition: transform 0.2s;
+    }
+    .status-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+    
+    .status-card .label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .status-card .value { font-size: 1.25rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    
+    /* Indicador pulsante */
+    .pulse-dot { width: 10px; height: 10px; background-color: var(--success); border-radius: 50%; box-shadow: 0 0 10px var(--success); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+    /* --- INPUTS --- */
+    .main-input-area { margin-bottom: 25px; }
+    .main-input-area label { display: block; margin-bottom: 10px; font-weight: 500; color: var(--text-muted); }
+    
+    textarea#keywords { 
+        width: 100%; height: 120px; padding: 15px; 
+        border-radius: var(--radius); 
+        background-color: var(--bg-input); 
+        color: var(--text-main); 
+        border: 2px solid var(--border); 
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+    textarea#keywords:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+    /* --- BUTTONS --- */
+    button { font-family: 'Inter', sans-serif; }
+    #start-btn { 
+        background: linear-gradient(to right, var(--primary), var(--accent)); 
+        color: white; 
+        width: 100%; padding: 16px; 
+        font-size: 1rem; font-weight: 600; 
+        border: none; border-radius: var(--radius); 
+        cursor: pointer; margin-bottom: 30px; 
+        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+        transition: all 0.3s;
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    #start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.5); }
+    #start-btn:active { transform: translateY(0); }
+    #start-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* --- PROGRESS BAR --- */
+    #progress-container { background: var(--bg-input); padding: 20px; border-radius: var(--radius); margin-bottom: 25px; border: 1px solid var(--border); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 12px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; }
+    
+    progress { width: 100%; height: 10px; border-radius: 5px; -webkit-appearance: none; }
+    progress::-webkit-progress-bar { background-color: var(--bg-card); border-radius: 5px; }
+    progress::-webkit-progress-value { background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 5px; box-shadow: 0 0 10px rgba(99, 102, 241, 0.5); }
+
+    /* --- TERMINAL --- */
+    .terminal-window { 
+        background-color: #0d1117; 
+        border-radius: var(--radius); 
+        margin-bottom: 30px; 
+        font-family: 'Fira Code', 'Consolas', monospace; 
+        border: 1px solid var(--border); 
+        display: none; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .terminal-header { background-color: #161b22; padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; border-radius: var(--radius) var(--radius) 0 0; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+    
+    #terminal-body { height: 200px; padding: 15px; overflow-y: auto; color: #e2e8f0; font-size: 0.85rem; line-height: 1.6; }
+    .log-line { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
+    .log-line.info { color: #94a3b8; } .log-line.success { color: var(--success); } .log-line.error { color: var(--danger); }
+
+    /* --- RESULTS LIST --- */
+    #results li { 
+        background: var(--bg-card); 
+        padding: 15px; margin-bottom: 10px; 
+        border-radius: 8px; 
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary); 
+        list-style: none; 
+        display: flex; justify-content: space-between; align-items: center;
+        transition: transform 0.2s;
+    }
+    #results li:hover { transform: translateX(5px); background: #263345; }
+
+    /* --- MODAL --- */
+    .modal { 
+        display: none; /* O JS muda isso para flex/block */
+        position: fixed; 
+        z-index: 1000; 
+        left: 0; 
+        top: 0; 
+        width: 100%; 
+        height: 100%; 
+        background-color: rgba(0,0,0,0.8); 
+        backdrop-filter: blur(5px); 
+        align-items: center; 
+        justify-content: center; 
+        
+        /* REMOVIDO: opacity: 0 e transition */
+        /* Isso garante que assim que o JS der 'display: flex', ele aparece */
+    }
+    .modal.active { opacity: 1; } /* Classe auxiliar para JS se quiser animar */
+    
+    #password-modal { z-index: 2001; } 
+
+    .modal-content { 
+        background-color: var(--bg-card); 
+        border: 1px solid var(--border); 
+        border-radius: 16px; 
+        padding: 30px; 
+        width: 90%; max-width: 650px; max-height: 85vh; 
+        overflow-y: auto; 
+        box-shadow: 0 25px 50px rgba(0,0,0,0.7); 
+        position: relative;
+        
+        /* Mantemos a animação de subida suave */
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    #password-modal .modal-content { max-width: 400px; text-align: center; }
+
+    .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); transition: color 0.2s; }
+    .close-modal:hover { color: var(--danger); }
+
+    /* --- SETTINGS GRID --- */
+    .settings-grid { display: grid; grid-template-columns: 180px 1fr; gap: 15px 20px; align-items: center; }
+    .settings-grid label { text-align: right; font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    
+    .settings-grid input[type="text"], 
+    .settings-grid input[type="password"], 
+    .settings-grid input[type="number"], 
+    .settings-grid input[type="time"] {
+        width: 100%; padding: 10px 12px; 
+        background: var(--bg-input); 
+        border: 1px solid var(--border); 
+        color: white; border-radius: 6px;
+        transition: border-color 0.2s;
+    }
+    .settings-grid input:focus { border-color: var(--primary); }
+    .settings-grid input:disabled { background: rgba(0,0,0,0.2); color: #555; border-style: dashed; }
+
+    /* Custom Checkbox (Toggle Switch) */
+    input[type="checkbox"] { appearance: none; width: 40px; height: 22px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; }
+    input[type="checkbox"]::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--text-muted); border-radius: 50%; transition: 0.3s; }
+    input[type="checkbox"]:checked { background: var(--success); border-color: var(--success); }
+    input[type="checkbox"]:checked::after { left: 20px; background: white; }
+    input[type="checkbox"]:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .full-width { grid-column: 1 / -1; }
+    h3 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin: 25px 0 20px 0; color: var(--text-main); font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
+    
+    /* Buttons in Modal */
+    .btn-save { background-color: var(--success); color: #000; font-weight: 600; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 20px; transition: filter 0.2s; }
+    .btn-save:hover { filter: brightness(1.1); }
+    
+    .btn-cancel { background-color: transparent; color: var(--text-muted); padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; margin-top: 10px; width: 100%; transition: all 0.2s; }
+    .btn-cancel:hover { background: var(--bg-input); color: white; }
+
+    /* Security Bar */
+    .security-bar { background: rgba(245, 158, 11, 0.1); padding: 12px 20px; border-radius: 8px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .security-status { font-size: 0.9rem; color: var(--warning); font-weight: 500; }
+    #btn-unlock-admin { background-color: var(--warning); color: #000; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 700; display: flex; gap: 8px; align-items: center; transition: transform 0.2s; }
+    #btn-unlock-admin:hover { transform: scale(1.05); }
+    #btn-unlock-admin.unlocked { background-color: var(--success); color: white; cursor: default; }
+
+    /* Tooltip Moderno */
+    .tooltip { position: relative; display: inline-block; cursor: help; color: var(--primary); margin-left: 5px; }
+    .tooltip .tooltip-text { visibility: hidden; width: 240px; background-color: #000; color: #fff; text-align: center; border-radius: 8px; padding: 12px; position: absolute; z-index: 1001; bottom: 140%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 0.8rem; box-shadow: 0 10px 20px rgba(0,0,0,0.5); font-weight: 400; border: 1px solid var(--border); }
+    .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+    .tooltip .tooltip-text::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #000 transparent transparent transparent; }
+
+    /* WhatsApp Card */
+    .whatsapp-card { background: #111b21; border-radius: 8px; padding: 20px; border: 1px solid #2a3942; text-align: center; }
+    #whatsapp-qr-code { border: 4px solid white; border-radius: 8px; box-shadow: 0 0 20px rgba(0,255,100,0.1); transition: transform 0.3s; }
+    #whatsapp-qr-code:hover { transform: scale(1.02); }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="header">
+            <div>
+                <h1>SIAJ</h1>
+                <div class="version-badge">v2.1 Pro</div>
+            </div>
+            <button id="settings-btn" title="Configurações"><i class="fas fa-cog"></i></button>
+        </div>
+        
+        <div class="content-body">
+            <div id="dashboard-status">
+                <div class="status-card">
+                    <span class="label">Status do Sistema</span>
+                    <span id="main-status-text" class="value">
+                        <div class="pulse-dot"></div> Pronto
+                    </span>
+                </div>
+            </div>
+
+            <div class="main-input-area">
+                <label for="keywords">
+                    <i class="fas fa-search" style="margin-right: 8px; color: var(--primary);"></i> Palavras-chave de Busca
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltip-text">Digite os termos (Nomes ou Processos). Pressione ENTER para separar cada busca.</span>
+                    </div>
+                </label>
+                <textarea id="keywords" placeholder="Ex: Fulano de Tal&#10;5073173-60..."></textarea>
+            </div>
+
+            <button id="start-btn">
+                <i class="fas fa-rocket" style="margin-right: 8px;"></i> Iniciar Automação
+            </button>
+
+            <div id="progress-container" style="display: none;">
+                <div class="progress-header">
+                    <span id="current-task"><i class="fas fa-spinner fa-spin"></i> Preparando...</span>
+                    <span id="progress-text">0%</span>
+                </div>
+                <progress id="progress-bar" value="0" max="100"></progress>
+            </div>
+
+            <div id="terminal-container" class="terminal-window">
+                <div class="terminal-header">
+                    <div class="dot red"></div>
+                    <div class="dot yellow"></div>
+                    <div class="dot green"></div>
+                    <span style="color: #666; font-size: 0.8rem; margin-left: 10px;">console --siaj</span>
+                </div>
+                <div id="terminal-body"></div>
+            </div>
+
+            <h2 id="results-title" style="margin-bottom: 15px; font-size: 1.2rem; color: var(--text-main); display: none;">Resultados</h2>
+            <ul id="results"></ul>
+        </div> 
+
+        <div id="password-modal" class="modal">
+            <div class="modal-content">
+                <div style="background: rgba(239, 68, 68, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                    <i class="fas fa-lock" style="font-size: 1.5rem; color: var(--danger);"></i>
+                </div>
+                <h3>Acesso Restrito</h3>
+                <p style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-muted);">Área reservada para administradores.</p>
+                <input type="password" id="admin-pass-input" placeholder="Digite sua senha..." style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: white; text-align: center;">
+                <button id="btn-pass-confirm" class="btn-save" style="background: var(--primary); color: white;">Desbloquear</button>
+                <button id="btn-pass-cancel" class="btn-cancel">Cancelar</button>
+            </div>
+        </div>
+
+        <div id="settings-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" id="close-settings">&times;</span>
+                <h2 style="text-align: center; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+                    <i class="fas fa-sliders-h"></i> Configurações
+                </h2>
+                
+                <div class="security-bar">
+                    <div class="security-status" id="security-status-text">
+                        <i class="fas fa-shield-alt"></i> Modo Leitura
+                    </div>
+                    <button id="btn-unlock-admin"><i class="fas fa-key"></i> Desbloquear</button>
+                </div>
+
+                <div class="settings-grid">
+                    
+                    <h3 class="full-width" style="color: var(--warning);">
+                        <i class="fab fa-google"></i> Inteligência Artificial
+                    </h3>
+
+                    <label>
+                        API Key:
+                        <div class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">Chave do Google AI Studio (Gemini).</span></div>
+                    </label>
+                    <input type="password" id="google-api-key" class="admin-protected" disabled placeholder="• • • • • • • •">
+
+                    <h3 class="full-width" style="color: #3b82f6;">
+                        <i class="fas fa-envelope"></i> Notificações (E-mail)
+                    </h3>
+
+                    <label>Ativar Envio:</label>
+                    <input type="checkbox" id="email-enabled" class="admin-protected" disabled style="justify-self: start;">
+
+                    <label>Remetente:</label>
+                    <input type="text" id="email-user" class="admin-protected" disabled placeholder="seu@email.com">
+
+                    <label>Senha App:</label>
+                    <input type="password" id="email-pass" class="admin-protected" disabled placeholder="Senha de aplicativo">
+
+                    <label>Destinatário:</label>
+                    <input type="text" id="email-dest" class="admin-protected" disabled placeholder="chefe@email.com">
+
+                
+                    <label for="license-key">🔑 Chave de Licença <span style="color: red;">*</span></label>
+    <input type="text" id="license-key" placeholder="Cole sua licença aqui..." style="width: 100%; padding: 8px;" required>
+    
+    <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+        ID da Máquina: <span id="machine-id-display" style="font-family: monospace; font-weight: bold; user-select: text;">Carregando...</span>
+        <a href="#" id="btn-copy-id" style="margin-left: 5px; color: #3498db;">(Copiar)</a>
+    </small>
+                
+
+
+                    <h3 class="full-width" style="color: #229ED9;">
+                        <i class="fab fa-telegram-plane"></i> Telegram Bot
+                    </h3>
+                    <label>Bot Token:</label>
+                    <input type="password" id="telegram-token" class="admin-protected" disabled>
+                    <label>Chat ID:</label>
+                    <input type="text" id="telegram-chat-id" class="admin-protected" disabled>
+                    
+                    <label style="margin-top: 10px;">Modo Teste:</label>
+                    <input type="checkbox" id="skip-download" class="admin-protected" disabled style="justify-self: start; margin-top: 10px;">
+
+                    <h3 class="full-width" style="color: var(--success);">
+                        <i class="fab fa-whatsapp"></i> WhatsApp (Beta)
+                    </h3>
+
+                    <div class="full-width whatsapp-card">
+                        <div id="whatsapp-status-badge" style="margin-bottom: 15px; font-weight: 600; color: var(--text-muted); font-size: 1rem;">
+                            <i class="fas fa-circle-notch fa-spin"></i> Inicializando...
+                        </div>
+                        
+                        <img id="whatsapp-qr-code" src="" style="width: 180px; height: 180px; display: none; margin: 0 auto 15px auto;">
+                        
+                        <button id="btn-force-reset" style="background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: block; margin: 0 auto; font-size: 0.85rem; transition: 0.3s;">
+                            <i class="fas fa-trash-alt"></i> Resetar Sessão
+                        </button>
+                    </div>
+
+                    <label>Ativar WhatsApp:</label>
+                    <input type="checkbox" id="whatsapp-enabled" style="justify-self: start;">
+
+                    <label>Número Destino:</label>
+                    <input type="text" id="whatsapp-number" placeholder="64999998888">
+
+                    <div class="full-width">
+                        <button id="btn-test-whatsapp" style="background: var(--bg-card); color: var(--success); border: 1px solid var(--success); padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 600;">
+                            <i class="fas fa-paper-plane"></i> Testar Envio
+                        </button>
+                    </div>
+
+                    <h3 class="full-width" style="color: var(--primary);">
+                        <i class="fas fa-cogs"></i> Preferências
+                    </h3>
+
+                    <label>Agendamento:</label>
+                    <input type="checkbox" id="schedule-enabled" style="justify-self: start;">
+
+                    <label>Horário:</label>
+                    <input type="time" id="schedule-time">
+
+                    <label>Dias da Semana:</label>
+                    <div id="schedule-days" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <label style="font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 2px; color: white;">
+                            Seg <input type="checkbox" value="1">
+                        </label>
+                        <label style="font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 2px; color: white;">
+                            Ter <input type="checkbox" value="2">
+                        </label>
+                        <label style="font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 2px; color: white;">
+                            Qua <input type="checkbox" value="3">
+                        </label>
+                        <label style="font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 2px; color: white;">
+                            Qui <input type="checkbox" value="4">
+                        </label>
+                        <label style="font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 2px; color: white;">
+                            Sex <input type="checkbox" value="5">
+                        </label>
+                    </div>
+
+                    <label>Reter PDFs (dias):</label>
+                    <input type="number" id="retention-days" style="width: 80px;">
+                    
+                    <label>Mostrar Console:</label>
+                    <input type="checkbox" id="show-terminal" style="justify-self: start;">
+
+                    <button id="save-settings-btn" class="btn-save full-width">
+                        <i class="fas fa-save"></i> Salvar e Aplicar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+    <script src="./renderer.js"></script>
+</body>
+</html>
